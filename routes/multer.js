@@ -4,7 +4,7 @@ var storage = multer.diskStorage({
     path(null, "public/images");
   },
   filename: (req, file, path) => {
-    console.log(file.originalname);
+   
     var lastIndex = file.originalname.lastIndexOf(".");
     // console.log("lastIndex", lastIndex);
     const fileExtension = file.originalname.slice(lastIndex);

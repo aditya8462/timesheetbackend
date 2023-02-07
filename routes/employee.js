@@ -3,29 +3,26 @@ var router = express.Router();
 var pool = require("./pool");
 const { v4: uuidv4 } = require("uuid");
 router.post("/AddEmployee", function (req, res, next) {
-  console.log(req.body);
+ 
   var employeeid = uuidv4();
   pool.query(
-    "insert into employee(employeeid,firstname,lastname,department,designation,role,email,password,status,manager,controller)values(?,?,?,?,?,?,?,?,?,?,?)",
+    "insert into employee(employeeid,firstname,lastname,designation,role,email,password,status)values(?,?,?,?,?,?,?,?)",
     [
       employeeid,
       req.body.firstname,
       req.body.lastname,
-      req.body.department,
       req.body.designation,
       req.body.role,
       req.body.email,
       req.body.password,
       req.body.status,
-      req.body.manager,
-      req.body.controller,
     ],
     function (error, result) {
       if (error) {
-        console.log(error);
+       
         res.status(500).json({ status: false });
       } else {
-        console.log(result);
+       
         res.status(200).json({ status: true });
       }
     }
@@ -45,22 +42,19 @@ router.get("/displayall", function (req, res) {
 });
 router.post("/editemployee", function (req, res, next) {
   pool.query(
-    "update employee set firstname=?,lastname=?,department=?,designation=?,role=?,email=?,status=?,manager=?,controller=? where employeeid=?",
+    "update employee set firstname=?,lastname=?,designation=?,role=?,email=?,status=? where employeeid=?",
     [
       req.body.firstname,
       req.body.lastname,
-      req.body.department,
       req.body.designation,
       req.body.role,
       req.body.email,
       req.body.status,
-      req.body.manager,
-      req.body.controller,
       req.body.employeeid,
     ],
     function (error, result) {
       if (error) {
-        console.log(error);
+        
         res.status(500).json({ status: false, msg: "Server Error" });
       } else {
         res.status(200).json({ status: true, msg: "Edited" });
@@ -74,7 +68,7 @@ router.post("/deleteemployee", function (req, res, next) {
     [req.body.employeeid],
     function (error, result) {
       if (error) {
-        console.log(error);
+        
         res.status(500).json({ status: false, msg: "Server Error" });
       } else {
         res.status(200).json({ status: true, msg: "Deleted" });
@@ -89,10 +83,10 @@ router.post("/displaybyemployeeid", function (req, res, next) {
     [req.body.employeeid],
     function (error, result) {
       if (error) {
-        console.log(error);
+       
         res.status(500).json({ status: false, msg: "Server Error" });
       } else {
-        console.log(result);
+       
         res.status(200).json({ status: true, data: result[0] });
       }
     }
@@ -105,7 +99,7 @@ router.post("/checkLogin", function (req, res) {
     [req.body.email, req.body.password],
     function (error, result) {
       if (error) {
-        console.log(error)
+       
         return res
           .status(500)
           .json({ status: false, message: "Server Error!" });
@@ -128,15 +122,33 @@ router.post("/checkLogin", function (req, res) {
   );
 });
 
-router.post('/displayallleaders',function(req,res){
-  pool.query("select E.*,(select concat(firstname,' ',lastname) from employee where employeeid=E.manager)as managername,(select concat(firstname,' ',lastname) from employee where employeeid=E.controller)as controllername from employee E where employeeid=?",[req.body.employeeid],function(error,result){
-    if (error) {
-      console.log(error)
-      res.status(500).json({ data: [], status: false });
-    } else {
-      res.status(200).json({ status: true, data: result[0] });
+router.post("/displayallleaders", function (req, res) {
+  pool.query(
+    "select E.*,(select concat(firstname,' ',lastname) from employee where employeeid=E.manager)as managername,(select concat(firstname,' ',lastname) from employee where employeeid=E.controller)as controllername from employee E where employeeid=?",
+    [req.body.employeeid],
+    function (error, result) {
+      if (error) {
+        
+        res.status(500).json({ data: [], status: false });
+      } else {
+        res.status(200).json({ status: true, data: result[0] });
+      }
     }
-  })
-})
+  );
+});
+
+router.post("/displayreporthours", function (req, res) {
+  pool.query(
+    "SELECT *,sum(T.hours) as actualhour FROM timesheet T, employee E,assignproject AP where T.employeeid=E.employeeid and T.employeeid=AP.employeeid and T.projectid=AP.projectid and T.timeid=? group by T.employeeid",
+    [req.body.timeid],
+    function (error, result) {
+      if (error) {
+        res.status(500).json({ data: [], status: false });
+      } else {
+        res.status(200).json({ status: true, data: result });
+      }
+    }
+  );
+});
 
 module.exports = router;

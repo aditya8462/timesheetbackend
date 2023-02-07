@@ -9,10 +9,10 @@ router.post("/displayall", function (req, res) {
     [req.body.controller],
     function (error, result) {
       if (error) {
-        console.log(error);
+      
         res.status(500).json({ data: [], status: false });
       } else {
-        console.log(result);
+        
         res.status(200).json({ status: true, data: result });
       }
     }
@@ -21,14 +21,14 @@ router.post("/displayall", function (req, res) {
 
 router.post("/displayprojecttimesheet", function (req, res) {
   pool.query(
-    "select *,T.status as tstatus from timesheet T,assignproject AP,employee E where T.employeeid=AP.employeeid and T.employeeid=E.employeeid and E.controller=? and T.projectid=? group by T.timesheetid",
+    "select *,T.status as tstatus, T.created_at as tcreated_at from timesheet T,employee E,assignproject AE,type TY where T.employeeid=E.employeeid and T.employeeid=AE.employeeid and T.typeid=TY.typeid and AE.controller=? and T.projectid=?",
     [req.body.controller, req.body.projectid],
     function (error, result) {
       if (error) {
-        console.log(error);
+     
         res.status(500).json({ data: [], status: false });
       } else {
-        console.log(result);
+      
         res.status(200).json({ status: true, data: result });
       }
     }
@@ -41,10 +41,10 @@ router.post("/approvedtimesheet", function (req, res) {
     [req.body.timesheetid],
     function (error, result) {
       if (error) {
-        console.log(error);
+       
         res.status(500).json({ status: false, msg: "Server Error" });
       } else {
-        console.log(result);
+      
         res.status(200).json({ status: true, msg: "Edited" });
       }
     }
@@ -57,10 +57,10 @@ router.post("/nonapprovedtimesheet", function (req, res) {
     [req.body.timesheetid],
     function (error, result) {
       if (error) {
-        console.log(error);
+       
         res.status(500).json({ status: false, msg: "Server Error" });
       } else {
-        console.log(result);
+        
         res.status(200).json({ status: true, msg: "Edited" });
       }
     }
@@ -78,10 +78,40 @@ router.post("/displaytimesheetbydate", function (req, res) {
     ],
     function (error, result) {
       if (error) {
-        console.log(error);
+       
         res.status(500).json({ data: [], status: false });
       } else {
-        console.log(result);
+       
+        res.status(200).json({ status: true, data: result });
+      }
+    }
+  );
+});
+
+router.post("/displayprojectmhcbillable", function (req, res) {
+  pool.query(
+    "select *,T.status as tstatus, T.created_at as tcreated_at,sum(T.hours) as actualhour from timesheet T,employee E,assignproject AE,type TY where T.employeeid=E.employeeid and T.employeeid=AE.employeeid and T.typeid=TY.typeid and AE.controller=? and T.projectid=? and T.timeid=1 group by E.designation,T.typeid",
+    [req.body.controller, req.body.projectid],
+    function (error, result) {
+      if (error) {
+        res.status(500).json({ data: [], status: false });
+      } else {
+        
+        res.status(200).json({ status: true, data: result });
+      }
+    }
+  );
+});
+
+router.post("/displayprojectmhcnonbillable", function (req, res) {
+  pool.query(
+    "select *,T.status as tstatus, T.created_at as tcreated_at,sum(T.hours) as actualhour from timesheet T,employee E,assignproject AE,type TY where T.employeeid=E.employeeid and T.employeeid=AE.employeeid and T.typeid=TY.typeid and AE.controller=? and T.projectid=? and T.timeid=1 group by E.designation,T.typeid",
+    [req.body.controller, req.body.projectid],
+    function (error, result) {
+      if (error) {
+        res.status(500).json({ data: [], status: false });
+      } else {
+       
         res.status(200).json({ status: true, data: result });
       }
     }

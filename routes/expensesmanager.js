@@ -9,10 +9,10 @@ router.post("/displayall", function (req, res) {
     [req.body.manager],
     function (error, result) {
       if (error) {
-        console.log(error);
+      
         res.status(500).json({ data: [], status: false });
       } else {
-        console.log(result);
+       
         res.status(200).json({ status: true, data: result });
       }
     }
@@ -21,14 +21,14 @@ router.post("/displayall", function (req, res) {
 
 router.post("/displayprojectexpenses", function (req, res) {
   pool.query(
-    "select *,T.status as tstatus from expenses T,assignproject AP,employee E,category C,subcategory S  where T.employeeid=AP.employeeid and T.employeeid=E.employeeid and C.categoryid=T.categoryid and S.subcategoryid=T.subcategoryid and E.manager=? and T.projectid=? group by T.expensesid",
+    "select *,T.status as tstatus from expenses T,assignproject AP,employee E,category C,subcategory S  where T.employeeid=AP.employeeid and T.employeeid=E.employeeid and C.categoryid=T.categoryid and S.subcategoryid=T.subcategoryid and AP.manager=? and T.projectid=? group by T.expensesid",
     [req.body.manager, req.body.projectid],
     function (error, result) {
       if (error) {
-        console.log(error);
+      
         res.status(500).json({ data: [], status: false });
       } else {
-        console.log(result);
+       
         res.status(200).json({ status: true, data: result });
       }
     }
@@ -40,10 +40,10 @@ router.post("/approvedexpenses", function (req, res) {
     [req.body.expensesid],
     function (error, result) {
       if (error) {
-        console.log(error);
+      
         res.status(500).json({ status: false, msg: "Server Error" });
       } else {
-        console.log(result);
+       
         res.status(200).json({ status: true, msg: "Edited" });
       }
     }
@@ -56,10 +56,10 @@ router.post("/nonapprovedexpenses", function (req, res) {
     [req.body.expensesid],
     function (error, result) {
       if (error) {
-        console.log(error);
+      
         res.status(500).json({ status: false, msg: "Server Error" });
       } else {
-        console.log(result);
+       
         res.status(200).json({ status: true, msg: "Edited" });
       }
     }
